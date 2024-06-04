@@ -24,7 +24,6 @@ class FundusDataset(Dataset):
 
 def ids_to_path(ids: list[str], directories: list[Path]) -> list[Path]:
     files = []
-
     for directory in directories:
         for file in directory.iterdir():
             if (file.suffix in ['jpeg', 'jpg']) and any(file.name.startswith(uid) for uid in ids):
