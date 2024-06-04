@@ -70,6 +70,6 @@ if __name__ == '__main__':
         'train_data': folds
     }
 
-    with open("../../split_data.json", 'w') as f:
+    with open("../split_data.json", 'w') as f:
         json.dump(data, f)
         print('Saved split information to split_data.json')
