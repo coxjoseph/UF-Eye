@@ -11,6 +11,11 @@ from PIL import Image
 import os
 
 
+IMAGE_SIZE = (826, 1920)
+IN_PATHS = [Path('./raw/Fundus photos-controls'), Path('./raw/Fundus photo- cases (Alzheimer\'s only)')]
+OUT_PATHS = ['./healthy', './diseased']
+
+
 def process_folder(in_path: Path, out_path: Path, processing_functions: list[callable]) -> None:
     for image in in_path.iterdir():
         try:
@@ -41,10 +46,6 @@ def create_name(out_path: Path, original_name: str) -> str:
 
 
 if __name__ == '__main__':
-    IMAGE_SIZE = (826, 1920)
-    IN_PATHS = [Path('./raw/Fundus photos-controls'), Path('./raw/Fundus photo- cases (Alzheimer\'s only)')]
-    OUT_PATHS = ['./healthy', './diseased']
-
     transforms = [partial(torchvision.transforms.functional.center_crop, output_size=[IMAGE_SIZE[0], IMAGE_SIZE[0]]),
                   partial(torchvision.transforms.functional.resize, size=[224, 224])]
 
