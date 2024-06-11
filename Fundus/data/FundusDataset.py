@@ -22,10 +22,12 @@ class FundusDataset(Dataset):
         return image, label
 
 
-def ids_to_path(ids: list[str], directories: list[Path]) -> list[Path]:
+def ids_to_path(ids: list[str], directories: list[Path], dir_labels: list[int]) -> tuple[list[Path], list[int]]:
     files = []
-    for directory in directories:
+    labels = []
+    for directory, label in zip(directories, dir_labels):
         for file in directory.iterdir():
-            if (file.suffix in ['jpeg', 'jpg']) and any(file.name.startswith(uid) for uid in ids):
+            if (file.suffix in ['.jpeg', '.jpg']) and any(file.name.startswith(uid) for uid in ids):
                 files.append(file)
-    return files
+                labels.append(label)
+    return files, labels

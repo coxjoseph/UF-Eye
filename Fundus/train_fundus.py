@@ -1,4 +1,4 @@
-import os
+import argparse
 
 import torch
 from torch import nn
@@ -20,7 +20,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
     for epoch in range(num_epochs):
         model.train()
         for inputs, labels in train_loader:
-            inputs, labels = inputs.to(device), labels.to(device)
+            inputs, labels = inputs.to(device), labels.to(device, type=torch.float)
 
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -31,7 +31,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
         if epoch % 10 == 9:
             with torch.no_grad():
                 for val_inputs, val_labels in val_loader:
-                    val_inputs, val_labels = val_inputs.to(device), val_labels.to(device)
+                    val_inputs, val_labels = val_inputs.to(device), val_labels.to(device, type=torch.float)
                     preds = model(val_inputs)
                     val_loss = criterion(preds)
                     if val_loss < best_val_loss:
@@ -117,19 +117,11 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     print(f'All models trained!')
 
 
-def main():
+def main(args: argparse.Namespace):
     num_gpus = torch.cuda.device_count()
-    start_fold = os.environ.get('start_fold')
-    if start_fold is None:
-        start_fold = 0
-
-    batch_size = os.environ.get('batch_size')
-    if batch_size is None:
-        batch_size = 3
-
-    num_epochs = os.environ.get('num_epochs')
-    if num_epochs is None:
-        num_epochs = 3
+    start_fold = args.start_fold
+    batch_size = args.batch_size
+    num_epochs = args.epochs
 
     json_path = Path("./split_data.json")
     processes = []
@@ -143,5 +135,10 @@ def main():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_fold', type=int, help='which fold to give GPU 0')
+    parser.add_argument('--batch_size', type=int, help='batch size for models')
+    parser.add_argument('--epochs', type=int, help='maximum number of training epochs')
+    arguments = parser.parse_args()
     mp.set_start_method('spawn')
-    main()
+    main(arguments)
