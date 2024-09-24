@@ -8,7 +8,7 @@ from models import DeepCNN, FundusMLP, ModifiedResNet, SimpleCNN
 from data.FundusDataset import FundusDataset, ids_to_path
 from pathlib import Path
 import json
-from torchvision.transforms.v2 import Compose, ToTensor, RandomRotation, ColorJitter, Normalize
+from torchvision.transforms.v2 import Compose, ToImage, ToDtype, RandomRotation, ColorJitter, Normalize
 import torch.multiprocessing as mp
 
 
@@ -20,7 +20,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
     for epoch in range(num_epochs):
         model.train()
         for inputs, labels in train_loader:
-            inputs, labels = inputs.to(device), labels.to(device, type=torch.float)
+            inputs, labels = inputs.to(device), labels.to(device)
 
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -31,7 +31,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
         if epoch % 10 == 9:
             with torch.no_grad():
                 for val_inputs, val_labels in val_loader:
-                    val_inputs, val_labels = val_inputs.to(device), val_labels.to(device, type=torch.float)
+                    val_inputs, val_labels = val_inputs.to(device), val_labels.to(device)
                     preds = model(val_inputs)
                     val_loss = criterion(preds)
                     if val_loss < best_val_loss:
@@ -64,14 +64,16 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
                                         dir_labels=[0, 1])
 
     train_transforms = Compose([
-        ToTensor(),
+        ToImage(),
+        ToDtype(torch.float32, scale=True),
         RandomRotation(15),
         ColorJitter(brightness=.5, hue=.3),
         Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
     val_transforms = Compose([
-        ToTensor(),
+        ToImage(),
+        ToDtype(torch.float32, scale=True),
         Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
