@@ -55,7 +55,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
         fundus_data = json.load(json_file)
 
     split_data = fundus_data['train_data'][f'fold_{fold_index}']
-    train_ids, val_ids = split_data['fold_train_data'], split_data['fold_val_data']
+    train_ids, val_ids = split_data['train_data'], split_data['val_data']
 
     train_paths, train_labels = ids_to_path(train_ids, directories=[Path("./data/healthy"), Path("./data/diseased")],
                                             dir_labels=[0, 1])
