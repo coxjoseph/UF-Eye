@@ -100,7 +100,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     val_dataset = FundusDataset(val_paths, val_labels, val_transforms)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
+    val_loader = DataLoader(val_dataset, batch_size=len(val_dataset), shuffle=False)
 
     results = []
     print(f'Device {device} training SimpleCNN...')
