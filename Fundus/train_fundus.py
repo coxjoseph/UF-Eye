@@ -33,7 +33,8 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
             with torch.no_grad():
                 for val_inputs, val_labels in val_loader:
                     val_inputs, val_labels = val_inputs.to(device), val_labels.to(device)
-                    val_labels = torch.unsqueeze(val_labels.type(torch.float32), -1)
+                    if len(val_labels.shape) == 1:
+                        val_labels = torch.unsqueeze(val_labels.type(torch.float32), -1)
                     preds = model(val_inputs)
                     val_loss = criterion(preds, val_labels)
                     if val_loss < best_val_loss:
@@ -45,8 +46,8 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
                         if epochs_since_improve > 15:
                             print(f'Patience reached: best validation loss - {best_val_loss}')
                             return best_val_loss
-        if device == 'cuda:0':
-            print(f"Epoch {epoch + 1} / {num_epochs} c")
+        if torch.cuda.current_device() == 0:
+            print(f"Epoch {epoch + 1} / {num_epochs}")
     print(f'Finished training model: best validation loss - {best_val_loss}')
     return best_val_loss
 
