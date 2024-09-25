@@ -136,6 +136,8 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
                            model_id=f'ResNet2D-fold_{fold_index}')
 
     results.append(val_loss)
+    with open(f'fold_{fold_index}-output.txt', 'w') as f:
+        f.write(results)
     print(f'All models trained!')
 
 
