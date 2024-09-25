@@ -21,7 +21,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
         model.train()
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
-            labels = labels.type(torch.float32)
+            labels = torch.unsqueeze(labels.type(torch.float32), -1)
 
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -33,7 +33,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
             with torch.no_grad():
                 for val_inputs, val_labels in val_loader:
                     val_inputs, val_labels = val_inputs.to(device), val_labels.to(device)
-                    val_labels = val_labels.type(torch.float32)
+                    val_labels = torch.unsqueeze(val_labels.type(torch.float32), -1)
                     preds = model(val_inputs)
                     val_loss = criterion(preds, val_labels)
                     if val_loss < best_val_loss:
