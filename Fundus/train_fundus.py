@@ -55,10 +55,9 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
                     else:
                         epochs_since_improve += 1
                         if epochs_since_improve > 15:
-                            print(f'Patience reached: best validation loss - {best_val_loss}')
+                            print(f'{device} | Patience reached: best validation loss - {best_val_loss}')
                             return best_val_loss
-        if torch.cuda.current_device() == 0:
-            print(f"Epoch {epoch + 1} / {num_epochs}")
+        print(f"{device} | Epoch {epoch + 1} / {num_epochs}")
     print(f'Finished training model: best validation loss - {best_val_loss}')
     return best_val_loss
 
@@ -118,10 +117,10 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     val_losses.append(val_loss)
 
     print(f'Device {device} training MLP...')
-    model = FundusMLP.FundusMLP().to(device)
+    model = FundusMLP.FundusMLP(num_features=batch_size).to(device)
     optimizer = AdamW(model.parameters(), lr=0.001)
     val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
-                           model_id=f'DeepCNN-fold_{fold_index}')
+                           model_id=f'MLP-fold_{fold_index}')
 
     val_losses.append(val_loss)
 
