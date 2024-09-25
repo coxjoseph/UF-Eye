@@ -61,6 +61,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
                         if epochs_since_improve > 15:
                             print(f'{device} | Patience reached: best validation loss - {best_val_loss}')
                             return best_val_loss
+            print(f"{epochs_since_improve} epochs since last improvement")
         print(f"{device} | Epoch {epoch + 1} / {num_epochs}")
     print(f'Finished training model: best validation loss - {best_val_loss}')
     return best_val_loss, train_losses, val_losses
