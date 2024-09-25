@@ -137,7 +137,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
 
     results.append(val_loss)
     with open(f'fold_{fold_index}-output.txt', 'w') as f:
-        f.write(results)
+        f.write(repr(results))
     print(f'All models trained!')
 
 
