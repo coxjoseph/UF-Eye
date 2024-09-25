@@ -14,7 +14,9 @@ import torch.multiprocessing as mp
 
 def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device: torch.device,
                 num_epochs: int, criterion: torch.nn.Module, train_loader: DataLoader, val_loader: DataLoader,
-                model_id: str) -> float:
+                model_id: str) -> tuple[float, list, list]:
+    train_losses = []
+    val_losses = []
     best_val_loss = 1e5
     epochs_since_improve = 0
     for epoch in range(num_epochs):
@@ -33,6 +35,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
             if len(outputs.shape) == 1:
                 outputs = torch.unsqueeze(outputs.type(torch.float32), -1)
             loss = criterion(outputs, labels)
+            train_losses.append(loss)
             loss.backward()
             optimizer.step()
 
@@ -48,6 +51,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
                     if len(preds.shape) == 1:
                         preds = torch.unsqueeze(preds.type(torch.float32), -1)
                     val_loss = criterion(preds, val_labels)
+                    val_losses.append(val_loss)
                     if val_loss < best_val_loss:
                         best_val_loss = val_loss
                         epochs_since_improve = 0
@@ -59,7 +63,7 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
                             return best_val_loss
         print(f"{device} | Epoch {epoch + 1} / {num_epochs}")
     print(f'Finished training model: best validation loss - {best_val_loss}')
-    return best_val_loss
+    return best_val_loss, train_losses, val_losses
 
 
 def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_size: int, num_epochs):
@@ -98,7 +102,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
 
-    val_losses = []
+    results = []
     print(f'Device {device} training SimpleCNN...')
     model = SimpleCNN.SimpleCNN().to(device)
     optimizer = AdamW(model.parameters(), lr=0.001)
@@ -106,7 +110,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
                            model_id=f'SimpleCNN-fold_{fold_index}')
 
-    val_losses.append(val_loss)
+    results.append(val_loss)
 
     print(f'Device {device} training DeepCNN...')
     model = DeepCNN.DeepCNN().to(device)
@@ -114,7 +118,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
                            model_id=f'DeepCNN-fold_{fold_index}')
 
-    val_losses.append(val_loss)
+    results.append(val_loss)
 
     print(f'Device {device} training MLP...')
     model = FundusMLP.FundusMLP(num_features=batch_size).to(device)
@@ -122,7 +126,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
                            model_id=f'MLP-fold_{fold_index}')
 
-    val_losses.append(val_loss)
+    results.append(val_loss)
 
     print(f'Device {device} training ModifiedResNet...')
     model = ModifiedResNet.ModifiedResNet().to(device)
@@ -130,7 +134,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
                            model_id=f'DeepCNN-fold_{fold_index}')
 
-    val_losses.append(val_loss)
+    results.append(val_loss)
     print(f'All models trained!')
 
 
