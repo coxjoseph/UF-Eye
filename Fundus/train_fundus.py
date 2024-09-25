@@ -29,6 +29,9 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
 
             optimizer.zero_grad()
             outputs = model(inputs)
+
+            if len(outputs.shape) == 1:
+                outputs = torch.unsqueeze(outputs.type(torch.float32), -1)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -42,6 +45,8 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
                     if len(val_labels.shape) == 1:
                         val_labels = torch.unsqueeze(val_labels.type(torch.float32), -1)
                     preds = model(val_inputs)
+                    if len(preds.shape) == 1:
+                        preds = torch.unsqueeze(preds.type(torch.float32), -1)
                     val_loss = criterion(preds, val_labels)
                     if val_loss < best_val_loss:
                         best_val_loss = val_loss
