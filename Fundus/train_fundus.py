@@ -133,7 +133,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     model = ModifiedResNet.ModifiedResNet().to(device)
     optimizer = AdamW(model.parameters(), lr=0.001)
     val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
-                           model_id=f'DeepCNN-fold_{fold_index}')
+                           model_id=f'ResNet2D-fold_{fold_index}')
 
     results.append(val_loss)
     print(f'All models trained!')
