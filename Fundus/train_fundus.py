@@ -22,6 +22,10 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
             labels = labels.type(torch.float32)
+            if len(inputs.shape) == 1:
+                inputs = torch.unsqueeze(inputs.type(torch.float32), -1)
+            if len(labels.shape) == 1:
+                labels = torch.unsqueeze(labels.type(torch.float32), -1)
 
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -33,6 +37,8 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
             with torch.no_grad():
                 for val_inputs, val_labels in val_loader:
                     val_inputs, val_labels = val_inputs.to(device), val_labels.to(device)
+                    if len(val_inputs.shape) == 1:
+                        val_inputs = torch.unsqueeze(val_inputs.type(torch.float32), -1)
                     if len(val_labels.shape) == 1:
                         val_labels = torch.unsqueeze(val_labels.type(torch.float32), -1)
                     preds = model(val_inputs)
