@@ -26,7 +26,7 @@ def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataL
 
 def load_model(architecture: str, fold: int, device: torch.device,
                base_dir: Path = Path('./models/trained')) -> torch.nn.Module:
-    checkpoint = base_dir / architecture / f'fold-{fold}.pt'
+    checkpoint = base_dir / architecture / f'{architecture}_fold-{fold}.pt'
     return torch.load(checkpoint, map_location=device)
 
 
