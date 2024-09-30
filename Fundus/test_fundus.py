@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 from data.FundusDataset import ids_to_path, FundusDataset
 import numpy as np
+from torchvision.transforms.v2 import Compose, ToImage, ToDtype, Normalize
 
 
 def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataLoader,
@@ -37,7 +38,11 @@ def get_test_loader(json_path: Path = Path('./split_data.json')) -> torch.utils.
     test_paths, test_labels = ids_to_path(test_ids, directories=[Path("./data/healthy"), Path("./data/diseased")],
                                           dir_labels=[0, 1])
 
-    test_dataset = FundusDataset(test_paths, test_labels)
+    test_dataset = FundusDataset(test_paths, test_labels, transform=Compose([
+        ToImage(),
+        ToDtype(torch.float32, scale=True),
+        Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ]))
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
     return test_dataloader
 
