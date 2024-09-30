@@ -63,6 +63,7 @@ class FundusMLP(nn.Module):
                                                      device=torch.device('cuda'))) / torch.tensor(self.scaler.scale_,
                                                                                                   dtype=torch.float32,
                                                                                                   device=torch.device('cuda'))
+        x_standardized.to(torch.device('cuda'))
 
         # Apply PCA transformation: (X - mean) * components.T
         x_pca = torch.matmul(x_standardized - self.pca_mean_, self.pca_components_.T)
