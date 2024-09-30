@@ -123,6 +123,17 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
 
     print(f'Device {device} training MLP...')
     model = FundusMLP.FundusMLP(n_components=100, hidden_dims=[512, 256], input_shape=(224, 224, 3)).to(device)
+    all_images = []
+    for batch_X, _ in dataloader:
+        # Flatten each batch of images
+        batch_X_flat = batch_X.view(batch_X.size(0), -1)
+        all_images.append(batch_X_flat)
+
+    # Concatenate all batches into one large tensor
+
+    all_images_flat = torch.cat(all_images, dim=0).numpy()
+    model.fit_pca(all_images_flat)
+
     optimizer = AdamW(model.parameters(), lr=0.001)
     val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
                            model_id=f'MLP-fold_{fold_index}')
