@@ -59,8 +59,10 @@ class FundusMLP(nn.Module):
         x_flattened = x.view(x.size(0), -1)
 
         # Standardize the data using the fitted scaler mean and std
-        x_standardized = (x_flattened - torch.tensor(self.scaler.mean_, dtype=torch.float32)) / torch.tensor(
-            self.scaler.scale_, dtype=torch.float32)
+        x_standardized = (x_flattened - torch.tensor(self.scaler.mean_, dtype=torch.float32,
+                                                     device=torch.device('cuda'))) / torch.tensor(self.scaler.scale_,
+                                                                                                  dtype=torch.float32,
+                                                                                                  device=torch.device('cuda'))
 
         # Apply PCA transformation: (X - mean) * components.T
         x_pca = torch.matmul(x_standardized - self.pca_mean_, self.pca_components_.T)
