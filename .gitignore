@@ -164,3 +164,4 @@ cython_debug/
 */data/raw/
 */data/healthy/
 */data/diseased/
+*/models/trained/
