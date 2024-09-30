@@ -43,7 +43,7 @@ def get_test_loader(json_path: Path = Path('./split_data.json')) -> torch.utils.
 
 
 if __name__ == '__main__':
-    architectures = ['SimpleCNN', 'DeepCNN', 'ModifiedResNet', 'FundusMLP']
+    architectures = ['SimpleCNN', 'DeepCNN', 'ResNet2D', 'MLP']
     num_folds = 5
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     dataloader = get_test_loader()
