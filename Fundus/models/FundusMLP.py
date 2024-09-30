@@ -53,20 +53,23 @@ class FundusMLP(nn.Module):
 
     def apply_pca(self, x):
         """
-        Apply PCA to the input batch x.
+        Apply PCA to the input batch x, ensuring tensors are on the same device.
         """
+        # Move PCA components and mean to the same device as input x
+        device = x.device
+        pca_components = self.pca_components_.to(device)
+        pca_mean = self.pca_mean_.to(device)
+
         # Flatten the input
         x_flattened = x.view(x.size(0), -1)
 
         # Standardize the data using the fitted scaler mean and std
         x_standardized = (x_flattened - torch.tensor(self.scaler.mean_, dtype=torch.float32,
-                                                     device=torch.device('cuda'))) / torch.tensor(self.scaler.scale_,
-                                                                                                  dtype=torch.float32,
-                                                                                                  device=torch.device('cuda'))
-        x_standardized.to(torch.device('cuda'))
+                                                     device=device)) / torch.tensor(self.scaler.scale_,
+                                                                                    dtype=torch.float32, device=device)
 
         # Apply PCA transformation: (X - mean) * components.T
-        x_pca = torch.matmul(x_standardized - self.pca_mean_, self.pca_components_.T)
+        x_pca = torch.matmul(x_standardized - pca_mean, pca_components.T)
         return x_pca
 
     def forward(self, x):
