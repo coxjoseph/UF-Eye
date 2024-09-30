@@ -130,7 +130,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
 
     # Concatenate all batches into one large tensor
 
-    all_images_flat = torch.cat(all_images, dim=0).numpy()
+    all_images_flat = torch.cat(all_images, dim=0).to(device)
     model = FundusMLP.FundusMLP(n_components=len(all_images_flat), hidden_dims=[64, 32], input_shape=(224, 224, 3)).to(device)
 
     model.fit_pca(all_images_flat)
