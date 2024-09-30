@@ -124,7 +124,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     print(f'Device {device} training MLP...')
     model = FundusMLP.FundusMLP(n_components=100, hidden_dims=[512, 256], input_shape=(224, 224, 3)).to(device)
     all_images = []
-    for batch_X, _ in dataloader:
+    for batch_X, _ in train_loader:
         # Flatten each batch of images
         batch_X_flat = batch_X.view(batch_X.size(0), -1)
         all_images.append(batch_X_flat)
