@@ -2,10 +2,23 @@ import torch.nn
 import torch.utils.data
 from pathlib import Path
 import json
+
+from models.SimpleCNN import SimpleCNN
+from models.DeepCNN import DeepCNN
+from models.FundusMLP import FundusMLP
+from models.ModifiedResNet import ModifiedResNet
+
 from data.FundusDataset import ids_to_path, FundusDataset
 import numpy as np
 from torchvision.transforms.v2 import Compose, ToImage, ToDtype, Normalize
 
+
+MODELS = {
+    'SimpleCNN': SimpleCNN(),
+    'DeepCNN': DeepCNN(),
+    'ResNet2D': ModifiedResNet(),
+    'MLP': FundusMLP()
+}
 
 def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataLoader,
                device: torch.device) -> tuple[list[int], list[int]]:
@@ -28,7 +41,9 @@ def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataL
 def load_model(architecture: str, fold: int, device: torch.device,
                base_dir: Path = Path('./models/trained')) -> torch.nn.Module:
     checkpoint = base_dir / architecture / f'{architecture}-fold_{fold}.pt'
-    return torch.load(checkpoint, map_location=device)
+    m = MODELS[architecture].to(device)
+    m.load_state_dict(torch.load(checkpoint, weights_only=True))
+    return m
 
 
 def get_test_loader(json_path: Path = Path('./split_data.json')) -> torch.utils.data.DataLoader:
