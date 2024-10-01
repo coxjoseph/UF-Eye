@@ -105,7 +105,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
 #    print(f'Device {device} training SimpleCNN...')
 #    model = SimpleCNN.SimpleCNN().to(device)
 #    optimizer = AdamW(model.parameters(), lr=0.001)
-#    criterion = nn.BCELoss()
+    criterion = nn.BCELoss()
 #    val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
 #                           model_id=f'SimpleCNN-fold_{fold_index}')
 #
