@@ -11,13 +11,14 @@ from models.ModifiedResNet import ModifiedResNet
 from data.FundusDataset import ids_to_path, FundusDataset
 import numpy as np
 from torchvision.transforms.v2 import Compose, ToImage, ToDtype, Normalize
-
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, roc_auc_score
 
 MODELS = {
     'SimpleCNN': SimpleCNN(),
     'DeepCNN': DeepCNN(),
     'ResNet2D': ModifiedResNet(),
-    'MLP': FundusMLP(hidden_dims=[512, 256], input_shape=(224, 224, 3))
+    'MLP': FundusMLP
 }
 
 
@@ -44,7 +45,12 @@ def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataL
 def load_model(architecture: str, fold: int, device: torch.device,
                base_dir: Path = Path('./models/trained')) -> torch.nn.Module:
     checkpoint = base_dir / architecture / f'{architecture}-fold_{fold}.pt'
-    m = MODELS[architecture].to(device)
+    if architecture == "MLP":
+        components = [37, 38, 39, 39, 42]
+        args = [[512, 256], components[fold], (224, 224, 3)]
+        m = MODELS[architecture](*args).to(device)
+    else:
+        m = MODELS[architecture].to(device)
     m.load_state_dict(torch.load(checkpoint, weights_only=True))
     return m
 
@@ -74,10 +80,12 @@ if __name__ == '__main__':
 
     votes = []
 
+    plt.figure(figsize=(10, 8))  # Initialize figure for ROC curves
+
     for model_name in architectures:
         architecture_predictions = []
         for i in range(num_folds):
-            print(f'Model {model_name} predicticting...')
+            print(f'Model {model_name} predicting...')
             model = load_model(model_name, i, device)
             model_predictions, true_labels = eval_model(model, dataloader, device)
             architecture_predictions.append(model_predictions)
@@ -86,14 +94,37 @@ if __name__ == '__main__':
 
         architecture_predictions = np.array(architecture_predictions)
         total_votes = np.sum(architecture_predictions, axis=1)
-        majority_vote = np.round(total_votes/num_folds)
+        majority_vote = np.round(total_votes / num_folds)
         votes.append(list(majority_vote))
 
-    # Could probably be more efficient with concatenation but this works
-    votes = np.array(votes)  # 4 x num_labels
-    weights = np.array([[0.25, 0.25, 0.25, 0.25]]).T  # 1 x 4
+        # Calculate ROC for the individual architecture (mean over folds)
+        mean_predictions = np.mean(architecture_predictions, axis=0)
+        fpr, tpr, _ = roc_curve(labels, mean_predictions)
+        auc_score = roc_auc_score(labels, mean_predictions)
 
-    final_predictions = np.matmul(weights, votes)
+        plt.plot(fpr, tpr, label=f'{model_name} (AUC = {auc_score:.2f})')
+
+    # Ensemble voting and weighting
+    votes = np.array(votes)  # 4 x num_labels
+    weights = np.array([[0.25, 0.25, 0.25, 0.25]]).T  # 4 x 1
+
+    final_predictions = np.matmul(weights.T, votes).squeeze()  # Shape should be (num_labels,)
     print(final_predictions)
     print(labels)
 
+    # Calculate ROC for the ensemble model
+    fpr_ensemble, tpr_ensemble, _ = roc_curve(labels, final_predictions)
+    auc_score_ensemble = roc_auc_score(labels, final_predictions)
+
+    # Plot the ROC curve for the ensemble
+    plt.plot(fpr_ensemble, tpr_ensemble, label=f'Ensemble (AUC = {auc_score_ensemble:.2f})', linestyle='--',
+             color='black')
+
+    # Plot settings
+    plt.plot([0, 1], [0, 1], color='gray', linestyle='--')  # Diagonal line for random guessing
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('AUROC Curves for Fundus Image Models')
+    plt.legend()
+    plt.show()
+    plt.savefig('roc_2d.pdf')
