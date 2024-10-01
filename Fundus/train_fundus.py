@@ -58,11 +58,10 @@ def train_model(model: torch.nn.Module, optimizer: torch.optim.Optimizer, device
                         torch.save(model.state_dict(), f'{model_id}.pt')
                     else:
                         epochs_since_improve += 1
-                        if epochs_since_improve > 15:
+                        if epochs_since_improve > 35:
                             print(f'{device} | Patience reached: best validation loss - {best_val_loss}')
                             return best_val_loss, train_losses, val_losses
             print(f"{epochs_since_improve} epochs since last improvement")
-        print(f"{device} | Epoch {epoch + 1} / {num_epochs}")
     print(f'Finished training model: best validation loss - {best_val_loss}')
     return best_val_loss, train_losses, val_losses
 
@@ -131,6 +130,7 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     # Concatenate all batches into one large tensor
 
     all_images_flat = torch.cat(all_images, dim=0).numpy()
+    print(f'Number of PCA components for MLP with fold {fold_index}: {len(all_images_flat)}')
     model = FundusMLP.FundusMLP(n_components=len(all_images_flat), hidden_dims=[512, 256], input_shape=(224, 224, 3))
     model.fit_pca(all_images_flat)
     model.to(device)

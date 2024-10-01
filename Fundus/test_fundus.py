@@ -17,8 +17,9 @@ MODELS = {
     'SimpleCNN': SimpleCNN(),
     'DeepCNN': DeepCNN(),
     'ResNet2D': ModifiedResNet(),
-    'MLP': FundusMLP(num_features=8)
+    'MLP': FundusMLP(hidden_dims=[512, 256], input_shape=(224, 224, 3))
 }
+
 
 def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataLoader,
                device: torch.device) -> tuple[list[int], list[int]]:
