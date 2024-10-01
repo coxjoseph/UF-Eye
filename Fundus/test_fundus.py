@@ -37,7 +37,7 @@ def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataL
                 if isinstance(prediction[0], list):
                     prediction = prediction[0]
                 predictions.extend([round(pred) for pred in prediction])
-                labels.extend([round(lab.item()) for lab in labels])
+                labels.extend([round(lab) for lab in labels])
 
     return predictions, labels
 
