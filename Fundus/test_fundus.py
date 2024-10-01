@@ -17,7 +17,7 @@ MODELS = {
     'SimpleCNN': SimpleCNN(),
     'DeepCNN': DeepCNN(),
     'ResNet2D': ModifiedResNet(),
-    'MLP': FundusMLP()
+    'MLP': FundusMLP(num_features=8)
 }
 
 def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataLoader,
@@ -32,6 +32,8 @@ def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataL
                 predictions.append(round(prediction))
                 labels.append(round(label.item()))
             else:
+                if isinstance(prediction[0], list):
+                    prediction = prediction[0]
                 predictions.extend([round(pred) for pred in prediction])
                 labels.extend([round(lab.item()) for lab in labels])
 
@@ -74,6 +76,7 @@ if __name__ == '__main__':
     for model_name in architectures:
         architecture_predictions = []
         for i in range(num_folds):
+            print(f'Model {model_name} predicticting...')
             model = load_model(model_name, i, device)
             model_predictions, true_labels = eval_model(model, dataloader, device)
             architecture_predictions.append(model_predictions)
