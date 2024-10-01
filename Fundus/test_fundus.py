@@ -37,7 +37,6 @@ def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataL
                     prediction = prediction[0]
                 predictions.extend([round(pred) for pred in prediction])
             labels.append(label.item())
-        print(labels)
     return predictions, labels
 
 

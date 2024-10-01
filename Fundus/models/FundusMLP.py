@@ -18,8 +18,8 @@ class FundusMLP(nn.Module):
         self.pca = PCA(n_components=n_components)
 
         # Initialize a placeholder for PCA components (will be learned once)
-        self.pca_components_ = None
-        self.pca_mean_ = None
+        self.register_buffer('pca_components_', None)
+        self.register_buffer('pca_mean_', None)
 
         # Define MLP layers
         layers = []
@@ -46,7 +46,6 @@ class FundusMLP(nn.Module):
         # Standardize the flattened data
         X_standardized = self.scaler.fit_transform(X_flattened)
 
-        # Fit PCA and store components and mean for later use
         self.pca.fit(X_standardized)
         self.pca_components_ = torch.tensor(self.pca.components_, dtype=torch.float32)
         self.pca_mean_ = torch.tensor(self.pca.mean_, dtype=torch.float32)
