@@ -46,7 +46,7 @@ def load_model(architecture: str, fold: int, device: torch.device,
     checkpoint = base_dir / architecture / f'{architecture}-fold_{fold}.pt'
     if architecture == "MLP":
         components = [37, 38, 39, 39, 42]
-        args = [[512, 256], components[fold], (224, 224, 3)]
+        args = [(224, 224, 3), components[fold], [512, 256]]
         m = MODELS[architecture](*args).to(device)
     else:
         m = MODELS[architecture].to(device)
