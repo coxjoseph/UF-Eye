@@ -102,23 +102,23 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
     val_loader = DataLoader(val_dataset, batch_size=len(val_dataset), shuffle=False)
 
     results = []
-    print(f'Device {device} training SimpleCNN...')
-    model = SimpleCNN.SimpleCNN().to(device)
-    optimizer = AdamW(model.parameters(), lr=0.001)
-    criterion = nn.BCELoss()
-    val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
-                           model_id=f'SimpleCNN-fold_{fold_index}')
-
-    results.append(val_loss)
-
-    print(f'Device {device} training DeepCNN...')
-    model = DeepCNN.DeepCNN().to(device)
-    optimizer = AdamW(model.parameters(), lr=0.01)
-    val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
-                           model_id=f'DeepCNN-fold_{fold_index}')
-
-    results.append(val_loss)
-
+#    print(f'Device {device} training SimpleCNN...')
+#    model = SimpleCNN.SimpleCNN().to(device)
+#    optimizer = AdamW(model.parameters(), lr=0.001)
+#    criterion = nn.BCELoss()
+#    val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
+#                           model_id=f'SimpleCNN-fold_{fold_index}')
+#
+#    results.append(val_loss)
+#
+#    print(f'Device {device} training DeepCNN...')
+#    model = DeepCNN.DeepCNN().to(device)
+#    optimizer = AdamW(model.parameters(), lr=0.01)
+#    val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
+#                           model_id=f'DeepCNN-fold_{fold_index}')
+#
+#    results.append(val_loss)
+#
     print(f'Device {device} training MLP...')
     all_images = []
     for batch_X, _ in train_loader:
@@ -141,15 +141,15 @@ def train_fold(fold_index: int, json_path: Path, device: torch.device, batch_siz
 
     results.append(val_loss)
 
-    print(f'Device {device} training ModifiedResNet...')
-    model = ModifiedResNet.ModifiedResNet().to(device)
-    optimizer = AdamW(model.parameters(), lr=0.001)
-    val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
-                           model_id=f'ResNet2D-fold_{fold_index}')
+#    print(f'Device {device} training ModifiedResNet...')
+#    model = ModifiedResNet.ModifiedResNet().to(device)
+#    optimizer = AdamW(model.parameters(), lr=0.001)
+#    val_loss = train_model(model, optimizer, device, num_epochs, criterion, train_loader, val_loader,
+#                           model_id=f'ResNet2D-fold_{fold_index}')
 
-    results.append(val_loss)
-    with open(f'fold_{fold_index}-output.txt', 'w') as f:
-        f.write(repr(results))
+ #   results.append(val_loss)
+ #   with open(f'fold_{fold_index}-output.txt', 'w') as f:
+ #       f.write(repr(results))
     print(f'All models trained!')
 
 
