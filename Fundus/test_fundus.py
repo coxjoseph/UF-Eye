@@ -32,13 +32,12 @@ def eval_model(trained_model: torch.nn.Module, test_data: torch.utils.data.DataL
             prediction = trained_model(image).tolist()
             if not isinstance(prediction, list):
                 predictions.append(round(prediction))
-                labels.append(round(label.item()))
             else:
                 if isinstance(prediction[0], list):
                     prediction = prediction[0]
                 predictions.extend([round(pred) for pred in prediction])
-                labels.extend([round(lab) for lab in labels])
-
+            labels.append(label.item())
+        print(labels)
     return predictions, labels
 
 
